@@ -1,0 +1,220 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+
+    "StorageType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_ZRS",
+        "Standard_GRS",
+        "Standard_RAGRS",
+        "Premium_LRS"
+      ]
+    },
+
+    "VnetName": {
+      "type": "string",
+      "defaultValue": "VirtualNetwork",
+      "metadata": {
+        "description": "VirtualNetwork Name"
+      }
+    },
+
+    "StorageName": {
+      "type": "string",
+      "metadata": {
+        "description": "Storage Account Name"
+      }
+    },
+
+    "VirtualNetworkPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/24"
+    },
+
+    "VirtualNetworkSubnet1Name": {
+      "type": "string",
+      "defaultValue": "Subnet-1"
+    },
+    "VirtualMachineName": {
+      "type": "array",
+      "defaultValue": [
+
+      ]
+    },
+
+    "VirtualMachineAdminUserName": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "Username for the Virtual Machine"
+      }
+    },
+
+    "VirtualMachineAdminPassword": {
+      "type": "securestring",
+      "defaultValue": "Azure_Admin",
+      "metadata": {
+        "description": "Local Password For Virtual Machine"
+      }
+
+    },
+    "VirtualMachineWindowsOSVersion": {
+      "type": "string",
+      "defaultValue": "2012-R2-Datacenter",
+      "allowedValues": [
+        "2008-R2-SP1",
+        "2012-Datacenter",
+        "2012-R2-Datacenter",
+        "2016-Datacenter",
+        "Windows-Server-Technical-Preview"
+      ]
+    },
+
+    "VirtualMachineVmSize": {
+      "type": "array",
+      "defaultValue": [
+
+      ]
+    }
+
+  },
+  "variables": {
+    "VirtualNetworkPrefix": "[parameters('VirtualNetworkPrefix')]",
+    "VirtualMachineImagePublisher": "MicrosoftWindowsServer",
+    "VirtualMachineImageOffer": "WindowsServer",
+    "VirtualMachineStorageAccountContainerName": "vhds",
+    "VirtualMachineVnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'VirtualNetwork')]",
+    "VirtualMachineSubnetRef": "[concat(variables('VirtualMachineVnetID'), '/subnets/', parameters('VirtualNetworkSubnet1Name'))]"
+  },
+  "resources": [
+    {
+      "name": "[parameters('StorageName')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-01-01",
+      "sku": {
+        "name": "[parameters('StorageType')]"
+      },
+      "dependsOn": [],
+      "tags": {
+        "displayName": "TestStorage"
+      },
+      "kind": "Storage"
+    },
+    {
+      "name": "VirtualNetwork",
+      "type": "Microsoft.Network/virtualNetworks",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "VirtualNetwork"
+      },
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('VirtualNetworkPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[parameters('VirtualNetworkSubnet1Name')]",
+            "properties": {
+              "addressPrefix": "[variables('VirtualNetworkPrefix')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "[parameters('VirtualMachineName')[copyIndex()]]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'VirtualNetwork')]"
+      ],
+      "tags": {
+        "displayName": "VirtualMachineNic"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('VirtualMachineSubnetRef')]"
+              }
+            }
+          }
+        ]
+      },
+      "copy": {
+        "name": "VirtualMachineNic",
+        "count": "[length(parameters('VirtualMachineName'))]"
+      }
+    },
+    {
+      "name": "[parameters('VirtualMachineName')[copyIndex()]]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2015-06-15",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', parameters('VirtualMachineName')[copyIndex()])]"
+      ],
+      "tags": {
+        "displayName": "VirtualMachine"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('VirtualMachineVmSize')[copyIndex()]]"
+        },
+        "osProfile": {
+          "computerName": "[parameters('VirtualMachineName')[copyIndex()]]",
+          "adminUsername": "[parameters('VirtualMachineAdminUsername')]",
+          "adminPassword": "[parameters('VirtualMachineAdminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('VirtualMachineImagePublisher')]",
+            "offer": "[variables('VirtualMachineImageOffer')]",
+            "sku": "[parameters('VirtualMachineWindowsOSVersion')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "VirtualMachineOSDisk",
+            "vhd": {
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageName')), '2016-01-01').primaryEndpoints.blob, variables('VirtualMachineStorageAccountContainerName'), '/', parameters('VirtualMachineName')[copyIndex()], '.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('VirtualMachineName')[copyIndex()])]"
+            }
+          ]
+        }
+      },
+      "copy":
+      {
+        "name": "VirtualMachine",
+        "count": "[length(parameters('VirtualMachineName'))]"
+      }
+
+    }
+
+  
+
+
+  ],
+  "outputs": {}
+}

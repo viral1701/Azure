@@ -1,0 +1,35 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+
+    "StorageName": {
+      "value": "viralstorageaccountv1"
+
+    },
+
+    "VirtualMachineName": {
+      "value": [
+        "AZ-Test01",
+        "AZ-Test02",
+        "AZ-Test03"
+      ]
+    },
+
+    "VirtualMachineAdminUserName": {
+      "value": "ViralAdmin"
+
+    },
+
+    "VirtualMachineVmSize": {
+      "value": [
+        "Standard_DS1",
+        "Standard_DS1",
+        "Standard_DS1"
+      ]
+    }
+
+
+  }
+
+}
