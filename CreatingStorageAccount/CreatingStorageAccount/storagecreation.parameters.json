@@ -4,7 +4,7 @@
   "parameters": {
 
     "StorageAccountName": {
-      "value": "VIRALSTORAGE"
+      "value": "scriptstorage"
 
     }
   }
