@@ -2,5 +2,9 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+
+    "_artifactsLocation": {
+      "value": "https://viralscriptstorage.blob.core.windows.net/armtemplates1/github/Azure/VM_Public_IP_Address/VM_Public_IP_Address"
+    }
   }
 }

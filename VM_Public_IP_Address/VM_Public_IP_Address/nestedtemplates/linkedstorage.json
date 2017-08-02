@@ -1,0 +1,86 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "StorageAccountType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_ZRS",
+        "Standard_GRS",
+        "Standard_RAGRS",
+        "Premium_LRS"
+      ]
+    },
+
+    "StorageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "StorageAccount Name"
+      }
+    },
+
+    "VirtualNicPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/24"
+    },
+
+    "VirtualNicSubnet1Name": {
+      "type": "string",
+      "defaultValue": "Subnet-1"
+    }
+
+
+  },
+  "variables": {
+    "StorageAccountName": "[toLower(concat(parameters('StorageAccountName')))]",
+    "VirtualNicPrefix": "[parameters('VirtualNicPrefix')]",
+    "VirtualNicSubnet1Name": "[parameters('VirtualNicSubnet1Name')]"
+
+  },
+  "resources": [
+    {
+      "name": "[variables('StorageAccountName')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-01-01",
+      "sku": {
+        "name": "[parameters('StorageAccountType')]"
+      },
+      "dependsOn": [ ],
+      "tags": {
+        "displayName": "StorageAccount"
+      },
+      "kind": "Storage"
+    },
+    {
+      "name": "VirtualNic",
+      "type": "Microsoft.Network/virtualNetworks",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "VirtualNic"
+      },
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('VirtualNicPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('VirtualNicSubnet1Name')]",
+            "properties": {
+              "addressPrefix": "[variables('VirtualNicPrefix')]"
+            }
+          }
+        ]
+      }
+    }
+
+  ],
+  "outputs": {
+    }
+}

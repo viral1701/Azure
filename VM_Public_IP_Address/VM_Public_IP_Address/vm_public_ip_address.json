@@ -2,40 +2,40 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    
-    "sasToken": {
-      "type": "securestring"
-    },
     "_artifactsLocation": {
       "type": "string"
     },
     "_artifactsLocationSasToken": {
       "type": "securestring"
     }
+    
+    
 
   },
   "variables": {
-    "storagelinkedtemplateTemplateFolder": "nestedtemplates",
-    "storagelinkedtemplateTemplateFileName": "storagelinkedtemplate.json",
-    "storagelinkedtemplateTemplateParametersFileName": "storagelinkedtemplate.parameters.json"},
+    "linkedstorageTemplateFolder": "nestedtemplates",
+    "linkedstorageTemplateFileName": "linkedstorage.json",
+    "linkedstorageTemplateParametersFileName": "linkedstorage.parameters.json"
+    },
   "resources": [
     {
-      "name": "storagelinkedtemplate",
+      "name": "linkedstorage",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2016-09-01",
       "dependsOn": [ ],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[concat(parameters('_artifactsLocation'), '/', variables('storagelinkedtemplateTemplateFolder'), '/', variables('storagelinkedtemplateTemplateFileName'), parameters('_artifactsLocationSasToken'))]",
+          "uri": "[concat(parameters('_artifactsLocation'), '/', variables('linkedstorageTemplateFolder'), '/', variables('linkedstorageTemplateFileName'), parameters('_artifactsLocationSasToken'))]",
           "contentVersion": "1.0.0.0"
         },
         "parametersLink": {
-          "uri": "[concat(parameters('_artifactsLocation'), '/', variables('storagelinkedtemplateTemplateFolder'), '/', variables('storagelinkedtemplateTemplateParametersFileName'), parameters('_artifactsLocationSasToken'))]",
+          "uri": "[concat(parameters('_artifactsLocation'), '/', variables('linkedstorageTemplateFolder'), '/', variables('linkedstorageTemplateParametersFileName'), parameters('_artifactsLocationSasToken'))]",
           "contentVersion": "1.0.0.0"
         }
       }
     }
+    
 
   ],
   "outputs": {}
