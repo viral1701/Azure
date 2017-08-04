@@ -7,6 +7,39 @@
     },
     "_artifactsLocationSasToken": {
       "type": "securestring"
+    },
+    "VMName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "VMAdminUserName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "VMAdminPassword": {
+      "type": "securestring"
+    },
+    "VMWindowsOSVersion": {
+      "type": "string",
+      "defaultValue": "2016-Datacenter-Server-Core",
+      "allowedValues": [
+        "2016-Datacenter-Server-Core",
+        "2008-R2-SP1",
+        "2012-Datacenter",
+        "2012-R2-Datacenter",
+        "Windows-Server-Technical-Preview"
+      ]
+    },
+    "storageAccountName": {
+      "type": "string"
+    },
+    
+    "virtualNetworkSubnetName": {
+      "type": "string"
+    },
+
+    "VMSize": {
+      "type": "string"
     }
     
     
@@ -15,7 +48,14 @@
   "variables": {
     "linkedstorageTemplateFolder": "nestedtemplates",
     "linkedstorageTemplateFileName": "linkedstorage.json",
-    "linkedstorageTemplateParametersFileName": "linkedstorage.parameters.json"
+    "linkedstorageTemplateParametersFileName": "linkedstorage.parameters.json",
+    "VMImagePublisher": "MicrosoftWindowsServer",
+    "VMImageOffer": "WindowsServer",
+    "VMOSDiskName": "VMOSDisk",
+    "VMVnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'VirtualNic')]",
+    "VMSubnetRef": "[concat(variables('VMVnetID'), '/subnets/', parameters('virtualNetworkSubnetName'))]",
+    "VMStorageAccountContainerName": "vhds",
+    "VMNicName": "[concat(parameters('VMName'), 'NetworkInterface')]"
     },
   "resources": [
     {
@@ -32,6 +72,77 @@
         "parametersLink": {
           "uri": "[concat(parameters('_artifactsLocation'), '/', variables('linkedstorageTemplateFolder'), '/', variables('linkedstorageTemplateParametersFileName'), parameters('_artifactsLocationSasToken'))]",
           "contentVersion": "1.0.0.0"
+        }
+      }
+    },
+    {
+      "name": "[variables('VMNicName')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'linkedstorage')]"
+      ],
+      "tags": {
+        "displayName": "VMNic"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('VMSubnetRef')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "[parameters('VMName')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2015-06-15",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('VMNicName'))]",
+        "[resourceId('Microsoft.Resources/deployments', 'linkedstorage')]"
+      ],
+      "tags": {
+        "displayName": "VM"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('VMSize')]"
+        },
+        "osProfile": {
+          "computerName": "[parameters('VMName')]",
+          "adminUsername": "[parameters('VMAdminUsername')]",
+          "adminPassword": "[parameters('VMAdminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('VMImagePublisher')]",
+            "offer": "[variables('VMImageOffer')]",
+            "sku": "[parameters('VMWindowsOSVersion')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "VMOSDisk",
+            "vhd": {
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2016-01-01').primaryEndpoints.blob, variables('VMStorageAccountContainerName'), '/', variables('VMOSDiskName'), '.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('VMNicName'))]"
+            }
+          ]
         }
       }
     }

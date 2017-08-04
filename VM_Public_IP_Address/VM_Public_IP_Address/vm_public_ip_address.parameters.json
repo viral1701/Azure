@@ -5,6 +5,19 @@
 
     "_artifactsLocation": {
       "value": "https://viralscriptstorage.blob.core.windows.net/armtemplates1/github/Azure/VM_Public_IP_Address/VM_Public_IP_Address"
+    },
+
+    "VMName": {
+      "value": "AZ-VP01"
+    },
+
+    "VMAdminUserName": {
+      "value": "viraladmin"
+    },
+
+    "VMSize": {
+      "value": "Standard_D2_v2"
+
     }
   }
 }
