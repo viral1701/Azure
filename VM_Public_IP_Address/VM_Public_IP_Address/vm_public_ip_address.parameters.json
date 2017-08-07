@@ -18,6 +18,10 @@
     "VMSize": {
       "value": "Standard_D2_v2"
 
+    },
+
+    "PublicIPDnsName": {
+      "value": "viral-test"
     }
   }
 }

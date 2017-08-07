@@ -40,6 +40,10 @@
 
     "VMSize": {
       "type": "string"
+    },
+    "PublicIPDnsName": {
+      "type": "string",
+      "minLength": 1
     }
     
     
@@ -51,11 +55,12 @@
     "linkedstorageTemplateParametersFileName": "linkedstorage.parameters.json",
     "VMImagePublisher": "MicrosoftWindowsServer",
     "VMImageOffer": "WindowsServer",
-    "VMOSDiskName": "VMOSDisk",
+    "VMOSDiskName": "[parameters('VMName')]",
     "VMVnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'VirtualNic')]",
     "VMSubnetRef": "[concat(variables('VMVnetID'), '/subnets/', parameters('virtualNetworkSubnetName'))]",
     "VMStorageAccountContainerName": "vhds",
-    "VMNicName": "[concat(parameters('VMName'), 'NetworkInterface')]"
+    "VMNicName": "[concat(parameters('VMName'), 'NetworkInterface')]",
+    "PublicIPName": "PublicIP"
     },
   "resources": [
     {
@@ -81,7 +86,8 @@
       "location": "[resourceGroup().location]",
       "apiVersion": "2016-03-30",
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', 'linkedstorage')]"
+        "[resourceId('Microsoft.Resources/deployments', 'linkedstorage')]",
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('PublicIPName'))]"
       ],
       "tags": {
         "displayName": "VMNic"
@@ -94,6 +100,9 @@
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[variables('VMSubnetRef')]"
+              },
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('PublicIPName'))]"
               }
             }
           }
@@ -143,6 +152,22 @@
               "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('VMNicName'))]"
             }
           ]
+        }
+      }
+    },
+    {
+      "name": "[variables('PublicIPName')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [ ],
+      "tags": {
+        "displayName": "PublicIP"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[parameters('PublicIPDnsName')]"
         }
       }
     }
