@@ -4,7 +4,12 @@
   "parameters": {
 
     "_artifactsLocation": {
-      "value": "https://viralscriptstorage.blob.core.windows.net/armtemplates1/github/Azure/VM_Public_IP_Address/VM_Public_IP_Address"
+      "value": "https://viralscriptstorage.blob.core.windows.net/armtemplates/github/Azure/VM_Public_IP_Address/VM_Public_IP_Address"
+    },
+
+    "_artifactsLocationSasToken": {
+      "value": "?sv=2016-05-31&sr=c&sig=9WLIceJwZVhRARleureytynIGf%2B5rhz0cG71v7m1dd0%3D&se=2017-08-08T15%3A25%3A37Z&sp=r"
+
     },
 
     "VMName": {
@@ -13,6 +18,10 @@
 
     "VMAdminUserName": {
       "value": "viraladmin"
+    },
+
+    "VMAdminPassword": {
+      "value": "azureadmin1"
     },
 
     "VMSize": {
@@ -24,4 +33,4 @@
       "value": "viral-test"
     }
   }
-}
+  }

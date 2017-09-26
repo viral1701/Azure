@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{151D2E53-A2C4-4D7D-83FE-D05416EBD58E}") = "ServiceFabricProvision", "ServiceFabricProvision\ServiceFabricProvision.deployproj", "{94FF4A57-1C2E-45D1-B428-88A1E9DD79A6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{94FF4A57-1C2E-45D1-B428-88A1E9DD79A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94FF4A57-1C2E-45D1-B428-88A1E9DD79A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94FF4A57-1C2E-45D1-B428-88A1E9DD79A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94FF4A57-1C2E-45D1-B428-88A1E9DD79A6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BFB1386D-41C3-42A0-8657-AFBECCDC9F53}
+	EndGlobalSection
+EndGlobal

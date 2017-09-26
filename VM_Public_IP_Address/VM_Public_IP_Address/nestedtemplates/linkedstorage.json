@@ -82,5 +82,14 @@
 
   ],
   "outputs": {
+    "storageAccountName": {
+      "value": "[reference(variables('StorageAccountName'))]",
+      "type": "string"
+    },
+
+    "virtualNicSubnet1Name": {
+      "value": "[reference(variables('VirtualNicSubnet1Name'))]",
+      "type": "string"
     }
+  }
 }

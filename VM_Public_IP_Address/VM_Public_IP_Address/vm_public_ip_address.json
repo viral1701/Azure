@@ -30,13 +30,6 @@
         "Windows-Server-Technical-Preview"
       ]
     },
-    "storageAccountName": {
-      "type": "string"
-    },
-    
-    "virtualNetworkSubnetName": {
-      "type": "string"
-    },
 
     "VMSize": {
       "type": "string"
@@ -57,11 +50,13 @@
     "VMImageOffer": "WindowsServer",
     "VMOSDiskName": "[parameters('VMName')]",
     "VMVnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'VirtualNic')]",
-    "VMSubnetRef": "[concat(variables('VMVnetID'), '/subnets/', parameters('virtualNetworkSubnetName'))]",
+    "virtualNetworkSubnetName": "[reference('linkedstorage').outputs.virtualNicSubnet1Name.value]",
+    "VMSubnetRef": "[concat(variables('VMVnetID'), '/subnets/', variables('virtualNetworkSubnetName'))]",
     "VMStorageAccountContainerName": "vhds",
     "VMNicName": "[concat(parameters('VMName'), 'NetworkInterface')]",
-    "PublicIPName": "PublicIP"
-    },
+    "PublicIPName": "PublicIP",
+    "storageName": "[reference('linkedstorage').outputs.StorageAccountName.value]"
+  },
   "resources": [
     {
       "name": "linkedstorage",
@@ -140,7 +135,7 @@
           "osDisk": {
             "name": "VMOSDisk",
             "vhd": {
-              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2016-01-01').primaryEndpoints.blob, variables('VMStorageAccountContainerName'), '/', variables('VMOSDiskName'), '.vhd')]"
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageName')), '2016-01-01').primaryEndpoints.blob, variables('VMStorageAccountContainerName'), '/', variables('VMOSDiskName'), '.vhd')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"

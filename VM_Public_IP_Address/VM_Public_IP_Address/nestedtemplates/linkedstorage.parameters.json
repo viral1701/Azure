@@ -4,7 +4,7 @@
   "parameters": {
 
     "StorageAccountName": {
-      "value": "viralscriptstorage"
+      "value": "viralvmstorageaccount"
 
     }
   }
